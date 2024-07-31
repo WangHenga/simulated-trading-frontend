@@ -1,17 +1,18 @@
 <template>
   <h2>成交</h2>
-  <a-table
-    :columns="columns"
-    :data="data"
-    :pagination="{
-      showTotal: true,
-      pageSize: searchParams.pageSize,
-      current: searchParams.current,
-      total,
-    }"
-    @page-change="onPageChange"
-  >
-  </a-table>
+  <a-spin :loading="loading" dot style="width: 100%">
+    <a-table
+      :columns="columns"
+      :data="data"
+      :pagination="{
+        showTotal: true,
+        pageSize: searchParams.pageSize,
+        current: searchParams.current,
+        total,
+      }"
+      @page-change="onPageChange"
+    />
+  </a-spin>
 </template>
 
 <script>
@@ -50,10 +51,11 @@ export default {
     ];
     const searchParams = ref({
       current: 1,
-      pageSize: 8,
+      pageSize: 10,
     });
     const total = ref(0);
     const data = ref([]);
+    const loading = ref(false);
     const loadData = async () => {
       const token = localStorage.getItem("auth_token");
       console.log(token);
@@ -64,6 +66,7 @@ export default {
       }
       try {
         const headers = { token: token };
+        loading.value = true;
         const res = await TradeControllerService.queryTradeListUsingPost(
           searchParams.value,
           headers
@@ -71,6 +74,7 @@ export default {
         if (res.code === 0) {
           data.value = res.data.records;
           total.value = res.data.total;
+          loading.value = false;
         }
       } catch (error) {
         message.info("请先登录");
@@ -98,6 +102,7 @@ export default {
       total,
       onPageChange,
       data,
+      loading,
     };
   },
 };

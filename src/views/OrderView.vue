@@ -1,24 +1,26 @@
 <template>
   <h2>委托</h2>
-  <a-table
-    :columns="columns"
-    :data="formattedData"
-    :pagination="{
-      showTotal: true,
-      pageSize: searchParams.pageSize,
-      current: searchParams.current,
-      total,
-    }"
-    @page-change="onPageChange"
-  >
-    <template #optional="{ record }">
-      <a-space>
-        <a-popconfirm @ok="delOrder(record)" content="确认要撤单吗?">
-          <a-button type="primary">撤单</a-button>
-        </a-popconfirm>
-      </a-space>
-    </template>
-  </a-table>
+  <a-spin :loading="loading" dot style="width: 100%">
+    <a-table
+      :columns="columns"
+      :data="formattedData"
+      :pagination="{
+        showTotal: true,
+        pageSize: searchParams.pageSize,
+        current: searchParams.current,
+        total,
+      }"
+      @page-change="onPageChange"
+    >
+      <template #optional="{ record }">
+        <a-space>
+          <a-popconfirm @ok="delOrder(record)" content="确认要撤单吗?">
+            <a-button type="primary">撤单</a-button>
+          </a-popconfirm>
+        </a-space>
+      </template>
+    </a-table>
+  </a-spin>
 </template>
 
 <script>
@@ -64,6 +66,7 @@ export default {
     });
     const total = ref(0);
     const data = ref([]);
+    const loading = ref(false);
     const loadData = async () => {
       const token = localStorage.getItem("auth_token");
       if (!token) {
@@ -73,6 +76,7 @@ export default {
       }
       try {
         const headers = { token: token };
+        loading.value = true;
         const res = await OrdersControllerService.queryOrderListUsingPost(
           searchParams.value,
           headers
@@ -80,6 +84,7 @@ export default {
         if (res.code === 0) {
           data.value = res.data.records;
           total.value = res.data.total;
+          loading.value = false;
         }
       } catch (error) {
         message.info("请先登录");
@@ -139,6 +144,7 @@ export default {
       total,
       onPageChange,
       delOrder,
+      loading,
     };
   },
 };

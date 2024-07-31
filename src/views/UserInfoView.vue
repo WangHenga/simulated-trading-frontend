@@ -29,15 +29,18 @@
 import { reactive, ref } from "vue";
 import { UserControllerService } from "../../generated";
 import router from "@/router";
+import message from "@arco-design/web-vue/es/message";
 
 export default {
   setup() {
-    const logout = () => {
+    const logout = async () => {
       const token = localStorage.getItem("auth_token");
       const headers = { token: token };
       localStorage.removeItem("auth_token");
       UserControllerService.logoutUsingPost(headers);
-      window.location.reload();
+      await router.push("/");
+      await fetchUserInfo();
+      message.info("已登出");
     };
     const login = () => {
       router.push("/user/login");

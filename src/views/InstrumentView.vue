@@ -11,24 +11,25 @@
       <a-button type="primary" @click="doSubmit">查询</a-button>
     </a-form-item>
   </a-form>
-
-  <a-table
-    :columns="columns"
-    :data="formattedData"
-    :pagination="{
-      showTotal: true,
-      pageSize: searchParams.pageSize,
-      current: searchParams.current,
-      total,
-    }"
-    @page-change="onPageChange"
-  >
-    <template #optional="{ record }">
-      <a-space>
-        <a-button type="primary" @click="createOrder(record)">下单</a-button>
-      </a-space>
-    </template>
-  </a-table>
+  <a-spin :loading="loading" dot style="width: 100%">
+    <a-table
+      :columns="columns"
+      :data="formattedData"
+      :pagination="{
+        showTotal: true,
+        pageSize: searchParams.pageSize,
+        current: searchParams.current,
+        total,
+      }"
+      @page-change="onPageChange"
+    >
+      <template #optional="{ record }">
+        <a-space>
+          <a-button type="primary" @click="createOrder(record)">下单</a-button>
+        </a-space>
+      </template>
+    </a-table>
+  </a-spin>
 
   <a-drawer
     :width="340"
@@ -112,7 +113,9 @@ export default {
     const sellPrice = ref("");
     const buyPrice = ref("");
     const instrumentData = ref({});
+    const loading = ref(false);
     const loadData = async () => {
+      loading.value = true;
       const res =
         await InstrumentControllerService.queryInstrumentListUsingPost(
           searchParams.value
@@ -120,6 +123,7 @@ export default {
       if (res.code === 0) {
         data.value = res.data.records;
         total.value = res.data.total;
+        loading.value = false;
       }
     };
     const visible = ref(false);
@@ -149,8 +153,11 @@ export default {
         }
       } catch (error) {
         message.error("卖开下单失败");
+      } finally {
+        orderForm.price = null;
+        orderForm.volume = 1;
+        visible.value = false;
       }
-      visible.value = false;
     };
     const handleBuy = async () => {
       const token = localStorage.getItem("auth_token");
@@ -177,8 +184,11 @@ export default {
         }
       } catch (error) {
         message.error("买开下单失败");
+      } finally {
+        orderForm.price = null;
+        orderForm.volume = 1;
+        visible.value = false;
       }
-      visible.value = false;
     };
     watchEffect(() => {
       loadData();
@@ -270,6 +280,7 @@ export default {
       orderForm,
       handleOk,
       handleCancel,
+      loading,
     };
   },
 };

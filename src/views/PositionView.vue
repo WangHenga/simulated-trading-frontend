@@ -1,22 +1,25 @@
 <template>
   <h2>持仓</h2>
-  <a-table
-    :columns="columns"
-    :data="formattedData"
-    :pagination="{
-      showTotal: true,
-      pageSize: searchParams.pageSize,
-      current: searchParams.current,
-      total,
-    }"
-    @page-change="onPageChange"
-  >
-    <template #optional="{ record }">
-      <a-space>
-        <a-button type="primary" @click="createOrder(record)">平仓</a-button>
-      </a-space>
-    </template>
-  </a-table>
+  <a-spin :loading="loading" dot style="width: 100%">
+    <a-table
+      :columns="columns"
+      :data="formattedData"
+      :pagination="{
+        showTotal: true,
+        pageSize: searchParams.pageSize,
+        current: searchParams.current,
+        total,
+      }"
+      @page-change="onPageChange"
+    >
+      <template #optional="{ record }">
+        <a-space>
+          <a-button type="primary" @click="createOrder(record)">平仓</a-button>
+        </a-space>
+      </template>
+    </a-table>
+  </a-spin>
+
   <a-drawer
     :width="340"
     :visible="visible"
@@ -111,6 +114,7 @@ export default {
     });
     const total = ref(0);
     const data = ref([]);
+    const loading = ref(false);
     const loadData = async () => {
       const token = localStorage.getItem("auth_token");
       if (!token) {
@@ -120,6 +124,7 @@ export default {
       }
       try {
         const headers = { token: token };
+        loading.value = true;
         const res = await PositionControllerService.queryPositionListUsingPost(
           searchParams.value,
           headers
@@ -127,6 +132,7 @@ export default {
         if (res.code === 0) {
           data.value = res.data.records;
           total.value = res.data.total;
+          loading.value = false;
         }
       } catch (error) {
         message.info("请先登录");
@@ -219,8 +225,11 @@ export default {
         }
       } catch (error) {
         message.error("卖平下单失败");
+      } finally {
+        orderForm.price = null;
+        orderForm.volume = 1;
+        visible.value = false;
       }
-      visible.value = false;
     };
     const handleBuy = async () => {
       const token = localStorage.getItem("auth_token");
@@ -248,8 +257,11 @@ export default {
         }
       } catch (error) {
         message.error("买平下单失败");
+      } finally {
+        orderForm.price = null;
+        orderForm.volume = 1;
+        visible.value = false;
       }
-      visible.value = false;
     };
     return {
       columns,
@@ -268,6 +280,7 @@ export default {
       buttonFlag,
       handleBuy,
       handleSell,
+      loading,
     };
   },
 };
