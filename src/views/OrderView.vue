@@ -21,6 +21,7 @@
       </template>
     </a-table>
   </a-spin>
+  <UserLogin :visible="visible" @update:visible="visible = $event" />
 </template>
 
 <script>
@@ -28,9 +29,12 @@ import { computed, onMounted, ref, watchEffect } from "vue";
 import { OrdersControllerService } from "../../generated";
 import message from "@arco-design/web-vue/es/message";
 import router from "@/router";
+import UserLogin from "@/components/UserLogin.vue";
 
 export default {
+  components: { UserLogin },
   setup() {
+    const visible = ref(false);
     const columns = [
       {
         title: "合约",
@@ -70,9 +74,7 @@ export default {
     const loadData = async () => {
       const token = localStorage.getItem("auth_token");
       if (!token) {
-        message.info("请先登录");
-        await router.push("/user/login");
-        return;
+        visible.value = true;
       }
       try {
         const headers = { token: token };
@@ -87,8 +89,7 @@ export default {
           loading.value = false;
         }
       } catch (error) {
-        message.info("请先登录");
-        await router.push("/user/login");
+        visible.value = true;
       }
     };
     watchEffect(() => {
@@ -109,9 +110,7 @@ export default {
     const delOrder = async (record) => {
       const token = localStorage.getItem("auth_token");
       if (!token) {
-        message.info("请先登录");
-        await router.push("/user/login");
-        return;
+        visible.value = true;
       }
       try {
         const headers = { token: token };
@@ -124,8 +123,7 @@ export default {
           await loadData();
         }
       } catch (error) {
-        message.info("请先登录");
-        await router.push("/user/login");
+        visible.value = true;
       }
     };
 
@@ -145,6 +143,7 @@ export default {
       onPageChange,
       delOrder,
       loading,
+      visible,
     };
   },
 };

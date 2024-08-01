@@ -19,7 +19,10 @@
       </template>
     </a-table>
   </a-spin>
-
+  <UserLogin
+    :visible="visible_login"
+    @update:visible="visible_login = $event"
+  />
   <a-drawer
     :width="340"
     :visible="visible"
@@ -39,10 +42,18 @@
         :model="orderForm"
       >
         <a-form-item field="price" label="价格">
-          <a-input v-model="orderForm.price" placeholder="对手价" />
+          <a-input-number
+            v-model="orderForm.price"
+            placeholder="对手价"
+            :precision="2"
+            :allow-clear="true"
+            :step="Number(instrumentData.minPriceChangeStr)"
+            :min="Number(instrumentData.minPrice)"
+            :max="Number(instrumentData.maxPrice)"
+          />
         </a-form-item>
         <a-form-item field="volume" label="手数">
-          <a-input v-model="orderForm.volume" placeholder="1" />
+          <a-input-number v-model="orderForm.volume" :min="1" :precision="0" />
         </a-form-item>
         <a-form-item>
           <a-button v-if="buttonFlag === 1" type="primary" @click="handleBuy"
@@ -67,14 +78,16 @@ import {
 import message from "@arco-design/web-vue/es/message";
 import router from "@/router";
 import InstrumentInfo from "@/components/InstrumentInfo.vue";
+import UserLogin from "@/components/UserLogin.vue";
 
 export default {
-  components: { InstrumentInfo },
+  components: { UserLogin, InstrumentInfo },
   setup() {
     const sellPrice = ref("");
     const buyPrice = ref("");
     const instrumentData = ref({});
     const visible = ref(false);
+    const visible_login = ref(false);
     const columns = [
       {
         title: "合约",
@@ -118,9 +131,7 @@ export default {
     const loadData = async () => {
       const token = localStorage.getItem("auth_token");
       if (!token) {
-        message.info("请先登录");
-        await router.push("/user/login");
-        return;
+        visible_login.value = true;
       }
       try {
         const headers = { token: token };
@@ -135,8 +146,7 @@ export default {
           loading.value = false;
         }
       } catch (error) {
-        message.info("请先登录");
-        await router.push("/user/login");
+        visible_login.value = true;
       }
     };
     watchEffect(() => {
@@ -194,8 +204,8 @@ export default {
           sellPrice.value = instrumentData.value.buyPriceStr + " 卖";
           buyPrice.value = instrumentData.value.sellPriceStr + " 买";
         } else {
-          sellPrice.value = newValue.toString() + " 卖";
-          buyPrice.value = newValue.toString() + " 买";
+          sellPrice.value = newValue.toFixed(2).toString() + " 卖";
+          buyPrice.value = newValue.toFixed(2).toString() + " 买";
         }
       }
     );
@@ -281,6 +291,7 @@ export default {
       handleBuy,
       handleSell,
       loading,
+      visible_login,
     };
   },
 };

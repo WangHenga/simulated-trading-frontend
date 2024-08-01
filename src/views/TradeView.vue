@@ -13,16 +13,18 @@
       @page-change="onPageChange"
     />
   </a-spin>
+  <UserLogin :visible="visible" @update:visible="visible = $event" />
 </template>
 
 <script>
 import { onMounted, ref, watchEffect } from "vue";
 import { TradeControllerService } from "../../generated";
-import message from "@arco-design/web-vue/es/message";
-import router from "@/router";
+import UserLogin from "@/components/UserLogin.vue";
 
 export default {
+  components: { UserLogin },
   setup() {
+    const visible = ref(false);
     const columns = [
       {
         title: "合约",
@@ -58,11 +60,8 @@ export default {
     const loading = ref(false);
     const loadData = async () => {
       const token = localStorage.getItem("auth_token");
-      console.log(token);
       if (!token) {
-        message.info("请先登录");
-        await router.push("/user/login");
-        return;
+        visible.value = true;
       }
       try {
         const headers = { token: token };
@@ -77,8 +76,7 @@ export default {
           loading.value = false;
         }
       } catch (error) {
-        message.info("请先登录");
-        await router.push("/user/login");
+        visible.value = true;
       }
     };
     watchEffect(() => {
@@ -103,6 +101,7 @@ export default {
       onPageChange,
       data,
       loading,
+      visible,
     };
   },
 };

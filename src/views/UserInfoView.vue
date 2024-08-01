@@ -23,6 +23,7 @@
     @click="refresh"
     >刷新
   </a-button>
+  <UserLogin :visible="visible" @update:visible="visible = $event" />
 </template>
 
 <script>
@@ -30,9 +31,12 @@ import { reactive, ref } from "vue";
 import { UserControllerService } from "../../generated";
 import router from "@/router";
 import message from "@arco-design/web-vue/es/message";
+import UserLogin from "@/components/UserLogin.vue";
 
 export default {
+  components: { UserLogin },
   setup() {
+    const visible = ref(false);
     const logout = async () => {
       const token = localStorage.getItem("auth_token");
       const headers = { token: token };
@@ -43,7 +47,8 @@ export default {
       message.info("已登出");
     };
     const login = () => {
-      router.push("/user/login");
+      // router.push("/user/login");
+      visible.value = true;
     };
     const state = ref(0);
     const userData = reactive([
@@ -94,6 +99,7 @@ export default {
       logout,
       login,
       refresh,
+      visible,
     };
   },
 };

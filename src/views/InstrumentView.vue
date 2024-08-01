@@ -50,10 +50,18 @@
         :model="orderForm"
       >
         <a-form-item field="price" label="价格">
-          <a-input v-model="orderForm.price" placeholder="对手价" />
+          <a-input-number
+            v-model="orderForm.price"
+            placeholder="对手价"
+            :precision="2"
+            :allow-clear="true"
+            :step="Number(instrumentData.minPriceChangeStr)"
+            :min="Number(instrumentData.minPrice)"
+            :max="Number(instrumentData.maxPrice)"
+          />
         </a-form-item>
         <a-form-item field="volume" label="手数">
-          <a-input v-model="orderForm.volume" placeholder="1" />
+          <a-input-number v-model="orderForm.volume" :min="1" :precision="0" />
         </a-form-item>
         <a-form-item>
           <a-button type="primary" style="margin-right: 10px" @click="handleBuy"
@@ -249,8 +257,8 @@ export default {
           sellPrice.value = instrumentData.value.buyPriceStr + " 卖";
           buyPrice.value = instrumentData.value.sellPriceStr + " 买";
         } else {
-          sellPrice.value = newValue.toString() + " 卖";
-          buyPrice.value = newValue.toString() + " 买";
+          sellPrice.value = newValue.toFixed(2).toString() + " 卖";
+          buyPrice.value = newValue.toFixed(2).toString() + " 买";
         }
       }
     );

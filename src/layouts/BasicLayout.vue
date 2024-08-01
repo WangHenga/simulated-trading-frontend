@@ -1,33 +1,41 @@
-<script setup lang="ts">
+<script lang="ts">
 import UserInfoView from "@/views/UserInfoView.vue";
+import { computed } from "vue";
+import { useRouter } from "vue-router";
+
+export default {
+  components: { UserInfoView },
+  setup() {
+    const router = useRouter();
+    const filteredRoutes = computed(() => {
+      return router.options.routes.filter((route) => !route.meta?.hidden);
+    });
+
+    return { filteredRoutes };
+  },
+};
 </script>
 
 <template>
   <a-layout class="a-layout">
-    <div :style="{ background: 'var(--color-fill-2)' }">
-      <a-page-header
-        :style="{ background: 'var(--color-bg-2)' }"
-        title="模拟交易系统"
-        :show-back="false"
-      >
-        <template #breadcrumb>
-          <a-breadcrumb>
-            <a-breadcrumb-item>
-              <router-link to="/">合约</router-link>
-            </a-breadcrumb-item>
-            <a-breadcrumb-item>
-              <router-link to="/order">委托</router-link>
-            </a-breadcrumb-item>
-            <a-breadcrumb-item>
-              <router-link to="/position">持仓</router-link>
-            </a-breadcrumb-item>
-            <a-breadcrumb-item>
-              <router-link to="/trade">成交</router-link>
-            </a-breadcrumb-item>
-          </a-breadcrumb>
-        </template>
-      </a-page-header>
-    </div>
+    <a-layout-header class="custom-layout-header">
+      <div class="header-title">模拟交易系统</div>
+      <div :style="{ display: 'flex', alignItems: 'center' }">
+        <nav class="navbar">
+          <ul class="navbar-list">
+            <li
+              v-for="route in filteredRoutes"
+              :key="route.path"
+              class="navbar-item"
+            >
+              <router-link :to="route.path" class="nav-link"
+                >{{ route.name }}
+              </router-link>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </a-layout-header>
     <a-layout>
       <a-layout-sider>
         <UserInfoView />
@@ -72,5 +80,53 @@ nav a {
 
 nav a.router-link-exact-active {
   color: #42b983;
+}
+
+.navbar {
+  /* 你可以在这里添加导航栏的背景色、内边距等样式 */
+  background-color: white;
+  height: 10px;
+  width: 400px;
+}
+
+.navbar-list {
+  list-style-type: none; /* 移除列表项前的标记 */
+  margin: 0; /* 移除默认的外边距 */
+  padding: 0; /* 移除默认的内边距 */
+  display: flex; /* 使用Flex布局 */
+  justify-content: space-around; /* 列表项之间的空间平均分布 */
+  /* 或者使用 justify-content: flex-start; 来使列表项从左边开始排列 */
+}
+
+.navbar-item {
+  /* 你可以在这里添加列表项的样式，如内边距、背景色等 */
+  padding: 10px 20px; /* 示例内边距 */
+}
+
+.navbar-item a {
+  color: blue; /* 链接文字颜色 */
+  font-size: 16px; /* 修改字体大小 */
+  text-decoration: none; /* 移除下划线 */
+  /* 你可以在这里添加更多的链接样式 */
+}
+
+.navbar-item a:hover {
+  /* 链接的悬停效果 */
+  text-decoration: underline; /* 示例：悬停时添加下划线 */
+}
+
+.custom-layout-header {
+  display: flex; /* 将 <a-layout-header> 设置为Flex容器 */
+  align-items: center; /* 垂直居中子元素 */
+  justify-content: space-between; /* 两端对齐子元素 */
+  padding: 0 20px; /* 添加一些内边距，以便子元素之间有空间 */
+  /* 其他样式，如背景色、边框等 */
+}
+
+.header-title {
+  /* 标题的样式 */
+  font-size: 20px; /* 示例字体大小 */
+  font-weight: bold; /* 粗体 */
+  /* 其他样式 */
 }
 </style>

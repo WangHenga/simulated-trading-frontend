@@ -17,14 +17,18 @@ const instrumentInfo = computed(() => [
   {
     label: "卖",
     value:
-      props.instrumentData.sellPriceStr +
+      (props.instrumentData.sellVolume === 0
+        ? "-".repeat(props.instrumentData.sellPriceStr.length)
+        : props.instrumentData.sellPriceStr) +
       "         " +
       props.instrumentData.sellVolume,
   },
   {
     label: "买",
     value:
-      props.instrumentData.buyPriceStr +
+      (props.instrumentData.buyVolume === 0
+        ? "-".repeat(props.instrumentData.buyPriceStr.length)
+        : props.instrumentData.buyPriceStr) +
       "         " +
       props.instrumentData.buyVolume,
   },

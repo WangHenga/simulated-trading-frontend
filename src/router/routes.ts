@@ -4,7 +4,8 @@ import HomeView from "@/views/HomeView.vue";
 export const routes: Array<RouteRecordRaw> = [
   {
     path: "/user/login",
-    name: "login",
+    name: "登录",
+    meta: { hidden: true },
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
@@ -13,7 +14,8 @@ export const routes: Array<RouteRecordRaw> = [
   },
   {
     path: "/",
-    name: "instrument",
+    name: "合约",
+    meta: { hidden: false },
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
@@ -22,17 +24,20 @@ export const routes: Array<RouteRecordRaw> = [
   },
   {
     path: "/order",
-    name: "order",
+    name: "委托",
+    meta: { hidden: false },
     component: () => import("../views/OrderView.vue"),
   },
   {
     path: "/position",
-    name: "position",
+    name: "持仓",
+    meta: { hidden: false },
     component: () => import("../views/PositionView.vue"),
   },
   {
     path: "/trade",
-    name: "trade",
+    name: "成交",
+    meta: { hidden: false },
     component: () => import("../views/TradeView.vue"),
   },
 ];
